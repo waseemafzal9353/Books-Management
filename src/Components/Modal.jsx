@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 
 const Modal = ({ isOpen, onClose, onBookAddedOrUpdated, book }) => {
   const [show, setShow] = useState(isOpen);
@@ -35,7 +36,7 @@ const Modal = ({ isOpen, onClose, onBookAddedOrUpdated, book }) => {
 
   const fetchNextId = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/books");
+      const response = await axiosInstance.get("/books");
       const books = response.data;
       const maxId = books.reduce((max, book) => Math.max(max, book.id), 0);
       setNextId(maxId + 1);
@@ -53,25 +54,26 @@ const Modal = ({ isOpen, onClose, onBookAddedOrUpdated, book }) => {
         genre,
         year: parseInt(year, 10),
       };
-  
+
       if (isEditing) {
-        await axios.put(`http://localhost:4000/books/${book.id}`, bookData);
+        await axiosInstance.put(`/books/${book.id}`, bookData);
       } else {
-        await axios.post("http://localhost:4000/books", {
+        await axiosInstance.post("/books", {
           ...bookData,
           id: nextId,
         });
       }
-  
+
       resetForm();
       onClose();
       onBookAddedOrUpdated();
     } catch (error) {
-      console.error("Error adding/updating book:", error.response ? error.response.data : error.message);
-      alert("An error occurred while saving the book. Please try again.");
+      console.error(
+        "Error adding/updating book:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
-  
 
   const resetForm = () => {
     setTitle("");
